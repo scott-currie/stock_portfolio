@@ -19,20 +19,21 @@ def company_search():
     """
     form = CompanySearchForm
 
+    # validate_on_submit is handling the POST method
     if form.validate_on_submit():
         res = req.get(f'https://api.iextrading.com/1.0/stock/{ form.data["symbol"] }/company')
         try:
             data = json.loads(res.text)
             company = {
-                symbol = data[''],
-                comapnyName= data[''],
-                exchange= data[''],
-                industry= data[''],
-                website= data[''],
-                description= data[''],
-                CEO= data[''],
-                issueType= data[''],
-                sector= data[''],
+                'symbol': data['symbol'],
+                'comapnyName': data['companyName'],
+                'exchange': data['exchange'],
+                'industry': data['industry'],
+                'website': data['website'],
+                'description': data['description'],
+                'CEO': data['CEO'],
+                'issueType': data['issueType'],
+                'sector': data['sector'],
             }
             new_company = Company(**company)
             db.session.add(new_company)
@@ -42,4 +43,4 @@ def company_search():
         except json.JSONDecodeError:
             abort(404)
 
-    return render_template('search.html')
+    return render_template('search.html', form=form)
