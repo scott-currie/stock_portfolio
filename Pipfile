@@ -6,8 +6,11 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-pytest = "*"
 flask = "*"
+flask-migrate = "*"
+flask-sqlalchemy = "*"
+flask-wtf = "*"
+requests = "*"
 
 [requires]
 python_version = "3.6"
