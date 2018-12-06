@@ -17,7 +17,7 @@ def home():
 def company_search():
     """
     """
-    form = CompanySearchForm
+    form = CompanySearchForm()
 
     # validate_on_submit is handling the POST method
     if form.validate_on_submit():
