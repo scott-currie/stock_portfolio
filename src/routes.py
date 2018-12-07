@@ -26,7 +26,7 @@ def company_search():
             data = json.loads(res.text)
             company = {
                 'symbol': data['symbol'],
-                'comapnyName': data['companyName'],
+                'companyName': data['companyName'],
                 'exchange': data['exchange'],
                 'industry': data['industry'],
                 'website': data['website'],
@@ -38,9 +38,13 @@ def company_search():
             new_company = Company(**company)
             db.session.add(new_company)
             db.session.commit()
-
-            return redirect(url_for('.portfolio_detail'))
+            print(data)
+            return redirect(url_for('portfolio_detail'))
         except json.JSONDecodeError:
             abort(404)
 
     return render_template('search.html', form=form)
+
+@app.route('/portfolio_detail')
+def portfolio_detail():
+    return render_template('portfolio.html'), 201
