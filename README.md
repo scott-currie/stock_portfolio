@@ -18,3 +18,4 @@
 
 ## Change Log
 12-05-2018 18:00:00 - Basic app functionality up and running
+12-06-2018 16:30:00 - Routes home and search routes working.
