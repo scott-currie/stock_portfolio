@@ -7,6 +7,12 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+# Flask handles the db setup for us
+#   flask db init
+#   flask db migrate
+#   flask db upgrade
+#
+
 
 class Company(db.Model):
     __tablename__ = 'companies'
