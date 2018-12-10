@@ -22,7 +22,12 @@
   </header>
   <main>
     <div class="container">
-      <h1>Welcome to the site</h1>
+      <h2>Search for stocks</h2>
+      <form method="POST" action="/search">
+        <label for="symbol"></label>
+        <input id="symbol" name="symbol" type="text">
+        <input type="submit" value="Go">
+      </form>
     </div>
   </main>
   <footer></footer>

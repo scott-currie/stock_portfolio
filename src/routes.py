@@ -1,9 +1,9 @@
-from . import app
-from flask import render_template, abort, redirect, url_for, session, g, make_response
-from .forms import CompanySearchForm
+from flask import render_template, abort, redirect, url_for, request
+from json import JSONDecodeError
+from .models import db, Company
 import requests as req
+from . import app
 import json
-from .models import Company, db
 
 
 @app.route('/')
@@ -17,34 +17,37 @@ def home():
 def company_search():
     """
     """
-    form = CompanySearchForm()
+    if request.method == 'POST':
+        res = req.get(f'https://api.iextrading.com/1.0/stock/{ request.form.get("symbol") }/company')
 
-    # validate_on_submit is handling the POST method
-    if form.validate_on_submit():
-        res = req.get(f'https://api.iextrading.com/1.0/stock/{ form.data["symbol"] }/company')
         try:
             data = json.loads(res.text)
-            company = {
-                'symbol': data['symbol'],
-                'companyName': data['companyName'],
-                'exchange': data['exchange'],
-                'industry': data['industry'],
-                'website': data['website'],
-                'description': data['description'],
-                'CEO': data['CEO'],
-                'issueType': data['issueType'],
-                'sector': data['sector'],
-            }
-            new_company = Company(**company)
-            db.session.add(new_company)
+            company = Company(
+                symbol=data['symbol'],
+                companyName=data['companyName'],
+                exchange=data['exchange'],
+                industry=data['industry'],
+                website=data['website'],
+                description=data['description'],
+                CEO=data['CEO'],
+                issueType=data['issueType'],
+                sector=data['sector'],
+            )
+
+            # NOTE: THIS WILL THROW A DUPE KEY ERROR IF WE ADD THE SAME STOCK AGAIN
+            # Handle this with an additional try/except
+            db.session.add(company)
             db.session.commit()
-            print(data)
-            return redirect(url_for('portfolio_detail'))
-        except json.JSONDecodeError:
+
+            return redirect(url_for('.portfolio_detail'))
+        except JSONDecodeError:
             abort(404)
 
-    return render_template('search.html', form=form)
+    return render_template('portfolio/search.html')
 
-@app.route('/portfolio_detail')
+
+@app.route('/portfolio')
 def portfolio_detail():
-    return render_template('portfolio.html'), 201
+    """
+    """
+    return render_template('portfolio/portfolio.html')
