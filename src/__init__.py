@@ -1,4 +1,3 @@
-from . import routes, models, exceptions
 from flask import Flask
 import os
 
@@ -20,3 +19,5 @@ app.config.from_mapping(
     SQLALCHEMY_DATABASE_URI=DATABASE_URL,
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
 )
+
+from . import routes, models, exceptions
