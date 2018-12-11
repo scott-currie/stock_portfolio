@@ -15,6 +15,7 @@ psycopg2-binary = "*"
 python-dotenv = "*"
 coverage = "*"
 pytest = "*"
+pydb = "*"
 
 [requires]
 python_version = "3.6"
