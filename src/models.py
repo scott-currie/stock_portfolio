@@ -1,17 +1,11 @@
-from . import app
+from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime as dt
 from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
+from . import app
 
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-
-# Flask handles the db setup for us
-#   flask db init
-#   flask db migrate
-#   flask db upgrade
-#
 
 
 class Company(db.Model):
