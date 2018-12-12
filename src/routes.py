@@ -1,12 +1,17 @@
 from flask import render_template, abort, redirect, url_for, request, session, flash
-from json import JSONDecodeError
-from .models import db, Company
-import requests as req
+# from json import JSONDecodeError
+from .models import db, Company, Portfolio
+# import requests as req
 from . import app
 from .forms import CompanySearchForm, CompanyAddForm
 import json
 import requests
 from sqlalchemy.exc import DBAPIError, IntegrityError
+
+
+@app.add_template_global
+def get_portfolios():
+    portfolios = Portfolio.query.all()
 
 
 @app.route('/')
