@@ -3,7 +3,7 @@ from flask import render_template, abort, redirect, url_for, request, session, f
 from .models import db, Company, Portfolio
 # import requests as req
 from . import app
-from .forms import CompanySearchForm, CompanyAddForm
+from .forms import CompanySearchForm, CompanyAddForm, PortfolioAddForm
 import json
 import requests
 from sqlalchemy.exc import DBAPIError, IntegrityError
@@ -11,7 +11,7 @@ from sqlalchemy.exc import DBAPIError, IntegrityError
 
 @app.add_template_global
 def get_portfolios():
-    portfolios = Portfolio.query.all()
+    return Portfolio.query.all()
 
 
 @app.route('/')
@@ -77,14 +77,27 @@ def company_preview():
             return render_template('portfolio/search.html', form=form)
         # Write was successful. Redirect to portfolio detail page
         print('Successful write to database.')
-        return redirect(url_for('.portfolio_detail'))
+        return redirect(url_for('.company_search'))
     # This was a POST method. Render the portfolio preview with form context
     return render_template('portfolio/preview.html', form=form, company_data=session['context'])
 
 
-@app.route('/portfolio')
+@app.route('/portfolio', methods=['GET', 'POST'])
 def portfolio_detail():
     """
     """
-    companies = Company.query.all()
-    return render_template('portfolio/portfolio.html', companies=companies)
+
+    form = PortfolioAddForm()
+
+    if form.validate_on_submit():
+        try:
+            portfolio = Portfolio(name=form.data['name'])
+            db.session.add(portfolio)
+            db.session.commit()
+        except (DBAPIError, IntegrityError):
+            flash('There was a problem creating your portfolio.')
+            return render_template('portfolio/search.html', form=form)
+        # Create portfolio was successful. Redirect to search.html
+        return redirect(url_for('.company_search'))
+
+    return render_template('portfolio/portfolio.html', form=form)
