@@ -20,3 +20,7 @@ class CompanyAddForm(FlaskForm):
     CEO = StringField('CEO', validators=[DataRequired()])
     issueType = StringField('issueType', validators=[DataRequired()])
     sector = StringField('sector', validators=[DataRequired()])
+
+
+class PortfolioAddForm(FlaskForm):
+    name = StringField('name', validators=[DataRequired()])
