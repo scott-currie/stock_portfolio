@@ -34,3 +34,4 @@ def test_portfolio_route_post_returns_302(client):
     """Check that a post method with valid input data on /search returns status code 302."""
     rv = client.post('/search', data={'symbol': 'MSFT'})
     assert rv.status_code == 302
+
