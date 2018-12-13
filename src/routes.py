@@ -1,24 +1,37 @@
 from flask import render_template, abort, redirect, url_for, request, session, flash
-from json import JSONDecodeError
-from .models import db, Company
-import requests as req
+# from json import JSONDecodeError
+from .models import db, Company, Portfolio
+# import requests as req
 from . import app
-from .forms import CompanySearchForm, CompanyAddForm
+from .forms import CompanySearchForm, CompanyAddForm, PortfolioAddForm
 import json
 import requests
-from sqlalchemy.exc import DBAPIError, IntegrityError
+from sqlalchemy.exc import DBAPIError, IntegrityError, InvalidRequestError
+
+
+@app.add_template_global
+def get_portfolios():
+    return Portfolio.query.all()
 
 
 @app.route('/')
 def home():
-    """
+    """Handle GET requests on the home route.
+
+    return: render the home page
     """
     return render_template('home.html')
 
 
 @app.route('/search', methods=['GET', 'POST'])
 def company_search():
-    """
+    """ Handle GET or POST methods on company search route.
+    POSTs from CompanySearchForm are passed through the remote API,
+    and data returned is converted to JSON. This data becomes session
+    context for creating Company objects elsewhere.
+
+    returns: redirect to company preview on POST
+    returns: render search page on GET
     """
     form = CompanySearchForm()
 
@@ -29,15 +42,20 @@ def company_search():
 
         data = json.loads(res.text)
         session['context'] = data
-
         return redirect(url_for('.company_preview'))
     # This is a GET
     return render_template('portfolio/search.html', form=form)
 
 
-@app.route('/preview', methods=['GET', 'POST'])
+@app.route('/company', methods=['GET', 'POST'])
 def company_preview():
-    """
+    """Handle GET and POST on company preview route. Bundle up the session
+    context and populate it with data from session['context']. On POSTs,
+    try to instantiate a Company from the form data.
+
+    return: render search page and CompanyAddForm if add fails
+    return: redirect to portfolio details route if add success
+    return:
     """
     form_context = {
         'symbol': session['context']['symbol'],
@@ -55,6 +73,7 @@ def company_preview():
         try:
             company = Company(
                 symbol=form.data['symbol'],
+                portfolio_id=form.data['portfolios'],
                 companyName=form.data['companyName'],
                 exchange=form.data['exchange'],
                 industry=form.data['industry'],
@@ -66,7 +85,7 @@ def company_preview():
             )
             db.session.add(company)
             db.session.commit()
-        except (DBAPIError, IntegrityError):
+        except (DBAPIError, IntegrityError, InvalidRequestError):
             flash('An error occurred trying to add this company.')
             # Error in writing to db. End this req/res cycle and render search page.
             return render_template('portfolio/search.html', form=form)
@@ -77,9 +96,27 @@ def company_preview():
     return render_template('portfolio/preview.html', form=form, company_data=session['context'])
 
 
-@app.route('/portfolio')
+@app.route('/portfolio', methods=['GET', 'POST'])
 def portfolio_detail():
+    """Handle GET and POST on portfolio route. On POST, use name from
+    form data to create a new Portfolio.
+
+    return: render seach page if portfolio add fails
+    return: return redirect to search page if portfolio add success
+    return: return render portfolio if this is a GET
     """
-    """
-    companies = Company.query.all()
-    return render_template('portfolio/portfolio.html', companies=companies)
+
+    form = PortfolioAddForm()
+
+    if form.validate_on_submit():
+        try:
+            portfolio = Portfolio(name=form.data['name'])
+            db.session.add(portfolio)
+            db.session.commit()
+        except (DBAPIError, IntegrityError):
+            flash('There was a problem creating your portfolio.')
+            return render_template('portfolio/search.html', form=form)
+        # Create portfolio was successful. Redirect to search.html
+        return redirect(url_for('.company_search'))
+
+    return render_template('portfolio/portfolio.html', form=form)
