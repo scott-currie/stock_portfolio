@@ -19,3 +19,5 @@
 ## Change Log
 12-05-2018 18:00:00 - Basic app functionality up and running
 12-06-2018 16:30:00 - Routes home and search routes working.
+12-12-2018 16:30:00 - Added the ability to add custom portfolios
+12-12-2018 18:00:00 - Portfolios and associated companies can be created and displayed
