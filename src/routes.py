@@ -34,18 +34,19 @@ def company_search():
 
         data = json.loads(res.text)
         session['context'] = data
-
+        # session['portfolio_id'] = form.data['portfolios']
         return redirect(url_for('.company_preview'))
     # This is a GET
     return render_template('portfolio/search.html', form=form)
 
 
-@app.route('/preview', methods=['GET', 'POST'])
+@app.route('/company', methods=['GET', 'POST'])
 def company_preview():
     """
     """
     form_context = {
         'symbol': session['context']['symbol'],
+        # 'portfolio_id': session['portfolio_id'],
         'companyName': session['context']['companyName'],
         'exchange': session['context']['exchange'],
         'industry': session['context']['industry'],
@@ -60,6 +61,7 @@ def company_preview():
         try:
             company = Company(
                 symbol=form.data['symbol'],
+                portfolio_id=form.data['portfolios'],
                 companyName=form.data['companyName'],
                 exchange=form.data['exchange'],
                 industry=form.data['industry'],
