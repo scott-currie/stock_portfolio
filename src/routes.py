@@ -16,14 +16,22 @@ def get_portfolios():
 
 @app.route('/')
 def home():
-    """
+    """Handle GET requests on the home route.
+
+    return: render the home page
     """
     return render_template('home.html')
 
 
 @app.route('/search', methods=['GET', 'POST'])
 def company_search():
-    """
+    """ Handle GET or POST methods on company search route.
+    POSTs from CompanySearchForm are passed through the remote API,
+    and data returned is converted to JSON. This data becomes session
+    context for creating Company objects elsewhere.
+
+    returns: redirect to company preview on POST
+    returns: render search page on GET
     """
     form = CompanySearchForm()
 
@@ -34,7 +42,6 @@ def company_search():
 
         data = json.loads(res.text)
         session['context'] = data
-        # session['portfolio_id'] = form.data['portfolios']
         return redirect(url_for('.company_preview'))
     # This is a GET
     return render_template('portfolio/search.html', form=form)
@@ -42,11 +49,16 @@ def company_search():
 
 @app.route('/company', methods=['GET', 'POST'])
 def company_preview():
-    """
+    """Handle GET and POST on company preview route. Bundle up the session
+    context and populate it with data from session['context']. On POSTs,
+    try to instantiate a Company from the form data.
+
+    return: render search page and CompanyAddForm if add fails
+    return: redirect to portfolio details route if add success
+    return:
     """
     form_context = {
         'symbol': session['context']['symbol'],
-        # 'portfolio_id': session['portfolio_id'],
         'companyName': session['context']['companyName'],
         'exchange': session['context']['exchange'],
         'industry': session['context']['industry'],
@@ -79,14 +91,19 @@ def company_preview():
             return render_template('portfolio/search.html', form=form)
         # Write was successful. Redirect to portfolio detail page
         print('Successful write to database.')
-        return redirect(url_for('.company_search'))
+        return redirect(url_for('.portfolio_detail'))
     # This was a POST method. Render the portfolio preview with form context
     return render_template('portfolio/preview.html', form=form, company_data=session['context'])
 
 
 @app.route('/portfolio', methods=['GET', 'POST'])
 def portfolio_detail():
-    """
+    """Handle GET and POST on portfolio route. On POST, use name from
+    form data to create a new Portfolio.
+
+    return: render seach page if portfolio add fails
+    return: return redirect to search page if portfolio add success
+    return: return render portfolio if this is a GET
     """
 
     form = PortfolioAddForm()
