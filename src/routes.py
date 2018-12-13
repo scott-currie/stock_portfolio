@@ -6,7 +6,7 @@ from . import app
 from .forms import CompanySearchForm, CompanyAddForm, PortfolioAddForm
 import json
 import requests
-from sqlalchemy.exc import DBAPIError, IntegrityError
+from sqlalchemy.exc import DBAPIError, IntegrityError, InvalidRequestError
 
 
 @app.add_template_global
@@ -85,7 +85,7 @@ def company_preview():
             )
             db.session.add(company)
             db.session.commit()
-        except (DBAPIError, IntegrityError):
+        except (DBAPIError, IntegrityError, InvalidRequestError):
             flash('An error occurred trying to add this company.')
             # Error in writing to db. End this req/res cycle and render search page.
             return render_template('portfolio/search.html', form=form)
