@@ -1,12 +1,14 @@
-from flask import render_template, abort, redirect, url_for, request, session, flash
+from flask import render_template, abort, redirect, url_for, request, session, flash, g
 # from json import JSONDecodeError
-from .models import db, Company, Portfolio
+from .models import db, Company, Portfolio, User
 # import requests as req
 from . import app
 from .forms import CompanySearchForm, CompanyAddForm, PortfolioAddForm
 import json
 import requests
 from sqlalchemy.exc import DBAPIError, IntegrityError, InvalidRequestError
+import functools
+from .auth import login_required
 
 
 @app.add_template_global
@@ -24,6 +26,7 @@ def home():
 
 
 @app.route('/search', methods=['GET', 'POST'])
+@login_required
 def company_search():
     """ Handle GET or POST methods on company search route.
     POSTs from CompanySearchForm are passed through the remote API,
@@ -48,6 +51,7 @@ def company_search():
 
 
 @app.route('/company', methods=['GET', 'POST'])
+@login_required
 def company_preview():
     """Handle GET and POST on company preview route. Bundle up the session
     context and populate it with data from session['context']. On POSTs,
@@ -86,6 +90,7 @@ def company_preview():
             db.session.add(company)
             db.session.commit()
         except (DBAPIError, IntegrityError, InvalidRequestError):
+            abort(404)
             flash('An error occurred trying to add this company.')
             # Error in writing to db. End this req/res cycle and render search page.
             return render_template('portfolio/search.html', form=form)
@@ -97,6 +102,7 @@ def company_preview():
 
 
 @app.route('/portfolio', methods=['GET', 'POST'])
+@login_required
 def portfolio_detail():
     """Handle GET and POST on portfolio route. On POST, use name from
     form data to create a new Portfolio.
@@ -110,7 +116,7 @@ def portfolio_detail():
 
     if form.validate_on_submit():
         try:
-            portfolio = Portfolio(name=form.data['name'])
+            portfolio = Portfolio(name=form.data['name'], user_id=g.user.id)
             db.session.add(portfolio)
             db.session.commit()
         except (DBAPIError, IntegrityError):
@@ -118,5 +124,10 @@ def portfolio_detail():
             return render_template('portfolio/search.html', form=form)
         # Create portfolio was successful. Redirect to search.html
         return redirect(url_for('.company_search'))
+
+    # import pdb; pdb.set_trace()
+    user_portfolios = Portfolio.query.filter(
+        Portfolio.user_id == g.user.id).all()
+    portfolio_ids = [p.id for p in user_portfolios]
 
     return render_template('portfolio/portfolio.html', form=form)
