@@ -15,8 +15,13 @@
     <nav class="main_nav">
       <ul>
         <li><a href="{{ url_for(".home") }}">Home</a></li>
+        {% if g.user %}
         <li><a href="{{ url_for(".company_search") }}">Search</a></li>
         <li><a href="{{ url_for(".portfolio_detail") }}">Portfolio</a></li>
+        <li><a href="{{ url_for(".logout") }}">Log Out</a></li>
+        {% else %}
+        <li><a href="{{ url_for(".login") }}">Log In</a></li>
+        {% endif %}
       </ul>
     </nav>
   </header>
