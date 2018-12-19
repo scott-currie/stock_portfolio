@@ -16,6 +16,10 @@ python-dotenv = "*"
 coverage = "*"
 pytest = "*"
 passlib = "*"
+jupyter = "*"
+pandas = "*"
+numpy = "*"
+bokeh = "*"
 
 [requires]
 python_version = "3.6"
