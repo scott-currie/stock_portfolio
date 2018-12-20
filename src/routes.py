@@ -9,7 +9,7 @@ import requests
 from sqlalchemy.exc import DBAPIError, IntegrityError, InvalidRequestError
 import functools
 from .auth import login_required
-
+from .plot import make_plot
 
 @app.add_template_global
 def get_portfolios():
@@ -131,3 +131,16 @@ def portfolio_detail():
     portfolio_ids = [p.id for p in user_portfolios]
 
     return render_template('portfolio/portfolio.html', form=form)
+
+
+@app.route('/stock', methods=["POST"])
+@login_required
+def stock_detail():
+    """Handle POST requests on /stock route. This should show data visualizations
+    for the selected symbol.
+    """
+    symbol = request.values['get_stock_data']
+    res = requests.get(f'https://api.iextrading.com/1.0/stock/{ symbol }/chart/5y')
+    data = res.json()
+    script, div = make_plot(data)
+    return render_template('stock/stock.html', script=script, div=div)
