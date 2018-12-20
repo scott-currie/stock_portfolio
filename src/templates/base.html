@@ -7,7 +7,11 @@
   <link rel="stylesheet" href="{{ url_for("static", filename="css/normalize.css") }}">
   <link rel="stylesheet" href="{{ url_for("static", filename="css/skeleton.css") }}">
   <link rel="stylesheet" href="{{ url_for("static", filename="css/style.css") }}">
-
+  <link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-1.0.2.min.css" type="text/css" />
+  <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-1.0.2.min.js"></script>
+  <script type="text/javascript">
+      Bokeh.set_log_level("info");
+        </script>
   <title>Stocks App</title>
 </head>
 <body>
@@ -34,6 +38,8 @@
     {% block content %}
       <h2>No content</h2>
     {% endblock content %}
+    {% block script %}
+    {% endblock script %}
   </main>
   <footer></footer>
 </body>
