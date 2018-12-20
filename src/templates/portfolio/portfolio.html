@@ -5,7 +5,7 @@
 <h2>Your Portfolios</h2>
   <div>
     <h3>Create a new portfolio.</h3>
-    <form action="{{ url_for('.portfolio_detail')}}" method="POST">
+    <form action="{{ url_for(".portfolio_detail")}}" method="POST">
       {{ form.hidden_tag() }}
       {{ form.name.label }}{{ form.name(size=20) }}
       <input type="submit" name="create_portfolio" id="create_portfolio" value="Go">
@@ -13,13 +13,18 @@
   </div>
 </div>
 <ul>
-{% for portfolio in get_portfolios() %}
-  <h3>{{ portfolio.name }}</h3>
-    <ul>
-    {% for company in portfolio.companies %}
-      <li><p>{{ company }} ({{ None }})</p></li>
-    {% endfor %}
-  </ul>
-{% endfor %}
+  {% for portfolio in get_portfolios() %}
+  <li>
+    <h3>{{ portfolio.name }}</h3>
+      <ul>
+      {% for company in portfolio.companies %}
+        <li><p>{{ company.companyName }} ({{ company.symbol }})</p></li>
+        <form action="{{ url_for(".stock_detail")}}" method="POST">
+          <input type="submit" name="get_stock_data" id="get_stock_data" value={{ company.symbol }}>
+        </form>
+      {% endfor %}
+    </ul>
+  </li>
+  {% endfor %}
 </ul>
 {% endblock content %}
